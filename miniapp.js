@@ -6,12 +6,18 @@ var http = require('http'),
     jade = require('./vendor/jade');
 
 http.createServer(function (request, response) {
-  response.writeHead(200, {'Content-Type': 'text/html'});
-  jade.renderFile('view.jade', {}, function(err, html){
-    response.end(html);
-  });
+  var location = url.parse(request.url, true),
+      params = (location.query || request.headers);
+  
+  if (location.pathname == '/' && request.method == "GET") {
+    response.writeHead(200, {
+      'Content-Type': 'application/x-javascript'
+    });
+    response.writeHead(200, {'Content-Type': 'text/html'});
+    jade.renderFile('view.jade', {}, function(err, html){
+      response.end(html);
+    });
+  } else {
+    new nodeStatic.Server('./public', {cache: false}).serve(request, response);
+  }
 }).listen(3000, "127.0.0.1");
-
-
-      
-
